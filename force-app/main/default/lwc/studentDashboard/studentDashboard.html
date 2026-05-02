@@ -1,0 +1,259 @@
+<template>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Student Dashboard</h1>
+            <p class="dashboard-subtitle">Manage students, courses, and grades</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎓</div>
+                <div class="stat-value">{totalStudents}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+                <div class="stat-value">{totalCourses}</div>
+                <div class="stat-label">Courses</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value">{activeStudents}</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value">{totalGrades}</div>
+                <div class="stat-label">Grades Recorded</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-grid">
+
+            <!-- Donut: Students by Status -->
+            <div class="chart-card">
+                <h2 class="chart-title">Students by Status</h2>
+                <template if:true={hasStudentData}>
+                    <div class="donut-container">
+                        <svg viewBox="0 0 160 160" class="donut-svg">
+                            <template for:each={donutSegments} for:item="seg">
+                                <path key={seg.key} d={seg.d} fill={seg.fill} stroke="white" stroke-width="2"/>
+                            </template>
+                            <circle cx="80" cy="80" r="35" fill="white"/>
+                        </svg>
+                        <div class="donut-legend">
+                            <template for:each={donutLegend} for:item="item">
+                                <div key={item.key} class="legend-item">
+                                    <span class="legend-dot" style={item.dotStyle}></span>
+                                    <span class="legend-label">{item.label}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+                <template if:false={hasStudentData}>
+                    <p class="empty-chart">No student data yet</p>
+                </template>
+            </div>
+
+            <!-- Bar: Grade Distribution -->
+            <div class="chart-card">
+                <h2 class="chart-title">Grade Distribution</h2>
+                <template if:true={hasGradeData}>
+                    <div class="bar-chart-container">
+                        <div class="bar-chart">
+                            <template for:each={gradeBarItems} for:item="item">
+                                <div key={item.key} class="bar-col">
+                                    <div class="bar-val">{item.val}</div>
+                                    <div class="bar-fill" style={item.barStyle}></div>
+                                    <div class="bar-label">{item.label}</div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+                <template if:false={hasGradeData}>
+                    <p class="empty-chart">No grade data yet</p>
+                </template>
+            </div>
+
+            <!-- Bar: Avg Score per Course -->
+            <div class="chart-card">
+                <h2 class="chart-title">Avg Score per Course</h2>
+                <template if:true={hasScoreData}>
+                    <div class="bar-chart-container">
+                        <div class="bar-chart">
+                            <template for:each={scoreBarItems} for:item="item">
+                                <div key={item.key} class="bar-col">
+                                    <div class="bar-val">{item.val}</div>
+                                    <div class="bar-fill" style={item.barStyle}></div>
+                                    <div class="bar-label">{item.label}</div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+                <template if:false={hasScoreData}>
+                    <p class="empty-chart">No score data yet</p>
+                </template>
+            </div>
+        </div>
+
+        <!-- Edit Student Modal -->
+        <template if:true={showStudentModal}>
+            <div class="modal-backdrop">
+                <div class="modal">
+                    <h2 class="modal-title">{modalTitle}</h2>
+                    <div class="form-row">
+                        <label>Student Name *</label>
+                        <input type="text" data-field="Name" value={editRecord.Name} onchange={handleFieldChange} class="form-input" />
+                    </div>
+                    <div class="form-row">
+                        <label>Email</label>
+                        <input type="email" data-field="Email__c" value={editRecord.Email__c} onchange={handleFieldChange} class="form-input" />
+                    </div>
+                    <div class="form-row">
+                        <label>Status</label>
+                        <select data-field="Status__c" onchange={handleFieldChange} class="form-input">
+                            <option value="Active" selected={isActive}>Active</option>
+                            <option value="Inactive" selected={isInactive}>Inactive</option>
+                            <option value="Graduated" selected={isGraduated}>Graduated</option>
+                            <option value="On Leave" selected={isOnLeave}>On Leave</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Enrollment Date</label>
+                        <input type="date" data-field="Enrollment_Date__c" value={editRecord.Enrollment_Date__c} onchange={handleFieldChange} class="form-input" />
+                    </div>
+                    <template if:true={errorMessage}><p class="error-msg">{errorMessage}</p></template>
+                    <div class="modal-actions">
+                        <button class="btn-cancel" onclick={closeModal}>Cancel</button>
+                        <button class="btn-save" onclick={saveRecord}>Save</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Edit Course Modal -->
+        <template if:true={showCourseModal}>
+            <div class="modal-backdrop">
+                <div class="modal">
+                    <h2 class="modal-title">{modalTitle}</h2>
+                    <div class="form-row">
+                        <label>Course Name *</label>
+                        <input type="text" data-field="Name" value={editRecord.Name} onchange={handleFieldChange} class="form-input" />
+                    </div>
+                    <div class="form-row">
+                        <label>Department</label>
+                        <input type="text" data-field="Department__c" value={editRecord.Department__c} onchange={handleFieldChange} class="form-input" />
+                    </div>
+                    <div class="form-row">
+                        <label>Credits</label>
+                        <input type="number" data-field="Credits__c" value={editRecord.Credits__c} onchange={handleFieldChange} class="form-input" />
+                    </div>
+                    <template if:true={errorMessage}><p class="error-msg">{errorMessage}</p></template>
+                    <div class="modal-actions">
+                        <button class="btn-cancel" onclick={closeModal}>Cancel</button>
+                        <button class="btn-save" onclick={saveRecord}>Save</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Edit Grade Modal -->
+        <template if:true={showGradeModal}>
+            <div class="modal-backdrop">
+                <div class="modal">
+                    <h2 class="modal-title">{modalTitle}</h2>
+                    <div class="form-row">
+                        <label>Student</label>
+                        <select data-field="Student__c" onchange={handleFieldChange} class="form-input">
+                            <option value="">--Select Student--</option>
+                            <template for:each={students} for:item="s">
+                                <option key={s.Id} value={s.Id}>{s.Name}</option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Course</label>
+                        <select data-field="Course__c" onchange={handleFieldChange} class="form-input">
+                            <option value="">--Select Course--</option>
+                            <template for:each={courses} for:item="c">
+                                <option key={c.Id} value={c.Id}>{c.Name}</option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Score</label>
+                        <input type="number" data-field="Score__c" value={editRecord.Score__c} onchange={handleFieldChange} class="form-input" min="0" max="100" />
+                    </div>
+                    <p class="hint-msg">💡 Grade Letter is set automatically based on score</p>
+                    <template if:true={errorMessage}><p class="error-msg">{errorMessage}</p></template>
+                    <div class="modal-actions">
+                        <button class="btn-cancel" onclick={closeModal}>Cancel</button>
+                        <button class="btn-save" onclick={saveRecord}>Save</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Students Table -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Students</h2>
+                <button class="btn-new" onclick={handleNewStudent}>+ New Student</button>
+            </div>
+            <table class="data-table">
+                <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Enrollment Date</th><th>Actions</th></tr></thead>
+                <tbody>
+                    <template for:each={students} for:item="s">
+                        <tr key={s.Id}>
+                            <td>{s.Name}</td><td>{s.Email__c}</td><td>{s.Status__c}</td><td>{s.Enrollment_Date__c}</td>
+                            <td><button class="btn-edit" data-id={s.Id} data-type="student" onclick={handleEdit}>Edit</button></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Courses Table -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Courses</h2>
+                <button class="btn-new" onclick={handleNewCourse}>+ New Course</button>
+            </div>
+            <table class="data-table">
+                <thead><tr><th>Course Name</th><th>Department</th><th>Credits</th><th>Actions</th></tr></thead>
+                <tbody>
+                    <template for:each={courses} for:item="c">
+                        <tr key={c.Id}>
+                            <td>{c.Name}</td><td>{c.Department__c}</td><td>{c.Credits__c}</td>
+                            <td><button class="btn-edit" data-id={c.Id} data-type="course" onclick={handleEdit}>Edit</button></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Grades Table -->
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Grades</h2>
+                <button class="btn-new" onclick={handleNewGrade}>+ New Grade</button>
+            </div>
+            <table class="data-table">
+                <thead><tr><th>Student</th><th>Course</th><th>Score</th><th>Grade</th><th>Actions</th></tr></thead>
+                <tbody>
+                    <template for:each={grades} for:item="g">
+                        <tr key={g.Id}>
+                            <td>{g.StudentName}</td><td>{g.CourseName}</td><td>{g.Score__c}</td><td>{g.Grade_Letter__c}</td>
+                            <td><button class="btn-edit" data-id={g.Id} data-type="grade" onclick={handleEdit}>Edit</button></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>

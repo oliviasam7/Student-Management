@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>59.0</apiVersion>
+    <description>Automatically sets Grade Letter based on Score when a Grade record is saved</description>
+    <label>Auto Set Grade Letter</label>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Active</status>
+
+    <start>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <object>Grade__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Score__c</field>
+            <operator>IsNull</operator>
+            <value><booleanValue>false</booleanValue></value>
+        </filters>
+        <connector>
+            <targetReference>Check_Score</targetReference>
+        </connector>
+    </start>
+
+    <decisions>
+        <name>Check_Score</name>
+        <label>Check Score Range</label>
+        <locationX>200</locationX>
+        <locationY>200</locationY>
+        <defaultConnectorLabel>Below 60 (F)</defaultConnectorLabel>
+        <defaultConnector>
+            <targetReference>Set_F</targetReference>
+        </defaultConnector>
+        <rules>
+            <name>Score_A</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Score__c</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue><numberValue>90</numberValue></rightValue>
+            </conditions>
+            <connector><targetReference>Set_A</targetReference></connector>
+            <label>90 or above (A)</label>
+        </rules>
+        <rules>
+            <name>Score_B</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Score__c</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue><numberValue>80</numberValue></rightValue>
+            </conditions>
+            <connector><targetReference>Set_B</targetReference></connector>
+            <label>80 or above (B)</label>
+        </rules>
+        <rules>
+            <name>Score_C</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Score__c</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue><numberValue>70</numberValue></rightValue>
+            </conditions>
+            <connector><targetReference>Set_C</targetReference></connector>
+            <label>70 or above (C)</label>
+        </rules>
+        <rules>
+            <name>Score_D</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Score__c</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue><numberValue>60</numberValue></rightValue>
+            </conditions>
+            <connector><targetReference>Set_D</targetReference></connector>
+            <label>60 or above (D)</label>
+        </rules>
+    </decisions>
+
+    <assignments>
+        <name>Set_A</name>
+        <label>Set A</label>
+        <locationX>400</locationX><locationY>50</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Grade_Letter__c</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>A</stringValue></value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_B</name>
+        <label>Set B</label>
+        <locationX>400</locationX><locationY>150</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Grade_Letter__c</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>B</stringValue></value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_C</name>
+        <label>Set C</label>
+        <locationX>400</locationX><locationY>250</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Grade_Letter__c</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>C</stringValue></value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_D</name>
+        <label>Set D</label>
+        <locationX>400</locationX><locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Grade_Letter__c</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>D</stringValue></value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <name>Set_F</name>
+        <label>Set F</label>
+        <locationX>400</locationX><locationY>450</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Grade_Letter__c</assignToReference>
+            <operator>Assign</operator>
+            <value><stringValue>F</stringValue></value>
+        </assignmentItems>
+    </assignments>
+</Flow>
