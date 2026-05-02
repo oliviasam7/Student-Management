@@ -4,7 +4,7 @@ A full-stack academic management application built on Salesforce, featuring cust
 
 ---
 
-## 📸 Features
+##  Features
 
 - **Student Management** — Add, edit, and track students with enrollment status
 - **Course Management** — Manage courses by department and credit hours
@@ -124,7 +124,7 @@ sf org open --target-org my-org
 
 ---
 
-## 👩‍💻 Author
+##  Author
 
 **Olivia Sam**  
 Salesforce Developer Edition Project  
