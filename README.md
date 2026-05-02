@@ -1,4 +1,4 @@
-# 🎓 Student Dashboard — Salesforce LWC Project
+#  Student Dashboard — Salesforce LWC Project
 
 A full-stack academic management application built on Salesforce, featuring custom objects, Apex backend logic, automation flows, and a Lightning Web Component dashboard with live data visualizations.
 
@@ -14,7 +14,7 @@ A full-stack academic management application built on Salesforce, featuring cust
 
 ---
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```
 force-app/main/default/
@@ -75,7 +75,7 @@ Blocks saving a Grade record if Score is less than 0 or greater than 100.
 
 ---
 
-## 🚀 Deployment
+##  Deployment
 
 ### Prerequisites
 - [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) installed
@@ -114,7 +114,7 @@ sf org open --target-org my-org
 
 ---
 
-## 🛠️ Built With
+##  Built With
 
 - **Salesforce Platform** — Custom objects, flows, validation rules
 - **Apex** — Server-side backend logic and SOQL queries
